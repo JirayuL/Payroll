@@ -7,6 +7,11 @@ import java.util.Map;
 
 import domain.Employee;
 
+/**
+ * InMemoryPayrollDatabase class
+ * @author Jirayu Laungwilawan & Patcharapol Nirunpornputta
+ *
+ */
 public class InMemoryPayrollDatabase implements PayrollDatabase {
 
 	private final Map<Integer, Employee> employees = new HashMap<Integer, Employee>();

@@ -7,6 +7,12 @@ import transaction.TransactionApplication;
 import transaction.TransactionFactory;
 import transaction.impl.TransactionFactoryImpl;
 
+/**
+ * PayrollApplicatoin
+ * @author Jirayu Laungwilawan & Patcharapol Nirunpornputta
+ *
+ */
+
 public class PayrollApplication {
 
 	public static void main(String[] args) {

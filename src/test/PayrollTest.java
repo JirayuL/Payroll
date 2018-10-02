@@ -55,29 +55,29 @@ public class PayrollTest {
 	public void setup() {
 		GpayrollDatabase = new InMemoryPayrollDatabase();
 	}
-	
+
 	@Test
 	public void addSalariedEmployee() throws Exception {
 		final int empId = 1;
 		final BigDecimal salary = BigDecimal.valueOf(1000.00);
 		AddSalariedEmployee t = new AddSalariedEmployee(empId, "Bob", "Home", salary);
 		t.execute();
-		
+
 		Employee e = GpayrollDatabase.getEmployee(empId);
 		assertThat(e.getName(), is("Bob"));
-		
+
 		PaymentClassification pc = e.getClassification();
 		assertThat(pc, instanceOf(SalariedClassification.class));
-		
+
 		SalariedClassification sc = (SalariedClassification) pc;
 		assertThat(sc.getSalary(), is(salary));
-		
+
 		PaymentSchedule ps = e.getSchedule();
 		assertThat(ps, instanceOf(MonthlySchedule.class));
 
 		PaymentMethod pm = e.getMethod();
 		assertThat(pm, instanceOf(HoldMethod.class));
-		
+
 		Affiliation af = e.getAffiliation();
 		assertThat(af, instanceOf(NoAffiliation.class));
 	}
@@ -89,57 +89,58 @@ public class PayrollTest {
 		final BigDecimal commissionRate = BigDecimal.valueOf(3.2);
 		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Bob", "Home", salary, commissionRate);
 		t.execute();
-		
+
 		Employee e = GpayrollDatabase.getEmployee(empId);
 		assertThat(e.getName(), is("Bob"));
-		
+
 		PaymentClassification pc = e.getClassification();
 		assertThat(pc, instanceOf(CommissionedClassification.class));
-		
+
 		CommissionedClassification cc = (CommissionedClassification) pc;
 		assertThat(cc.getSalary(), is(salary));
 		assertThat(cc.getCommissionRate(), is(commissionRate));
-		
+
 		PaymentSchedule ps = e.getSchedule();
 		assertThat(ps, instanceOf(BiweeklySchedule.class));
-		
+
 		PaymentMethod pm = e.getMethod();
 		assertThat(pm, instanceOf(HoldMethod.class));
-		
+
 		Affiliation af = e.getAffiliation();
 		assertThat(af, instanceOf(NoAffiliation.class));
 	}
-	
+
 	@Test
 	public void addHourlyEmployee() throws Exception {
 		final int empId = 1;
 		BigDecimal hourlyRate = BigDecimal.valueOf(22.50);
 		AddHourlyEmployee t = new AddHourlyEmployee(empId, "Bob", "Home", hourlyRate);
 		t.execute();
-		
+
 		Employee e = GpayrollDatabase.getEmployee(empId);
 		assertThat(e.getName(), is("Bob"));
-		
+
 		PaymentClassification pc = e.getClassification();
 		assertThat(pc, instanceOf(HourlyClassification.class));
-		
+
 		HourlyClassification hc = (HourlyClassification) pc;
 		assertThat(hc.getHourlyRate(), is(hourlyRate));
-		
+
 		PaymentSchedule ps = e.getSchedule();
 		assertThat(ps, instanceOf(WeeklySchedule.class));
-		
+
 		PaymentMethod pm = e.getMethod();
 		assertThat(pm, instanceOf(HoldMethod.class));
-		
+
 		Affiliation af = e.getAffiliation();
 		assertThat(af, instanceOf(NoAffiliation.class));
 	}
-	
+
 	@Test
 	public void deleteEmployee() throws Exception {
 		final int empId = 3;
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500),
+				BigDecimal.valueOf(3.2));
 		t.execute();
 		{
 			Employee e = GpayrollDatabase.getEmployee(empId);
@@ -152,7 +153,7 @@ public class PayrollTest {
 			assertThat(e, is(nullValue()));
 		}
 	}
-	
+
 	@Test
 	public void timeCardTransaction() throws Exception {
 		final int empId = 2;
@@ -168,12 +169,13 @@ public class PayrollTest {
 		assertThat(tc, is(notNullValue()));
 		assertThat(tc.getHours(), is(hours));
 	}
-	
+
 	@Test
 	public void salesReceiptTransaction() throws Exception {
 		final int empId = 2;
 		final BigDecimal amount = BigDecimal.valueOf(525.00);
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Bill", "Home", BigDecimal.valueOf(2500), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Bill", "Home", BigDecimal.valueOf(2500),
+				BigDecimal.valueOf(3.2));
 		t.execute();
 		SalesReceiptTransaction srt = new SalesReceiptTransaction(date(10, 31, 2001), amount, empId);
 		srt.execute();
@@ -184,7 +186,7 @@ public class PayrollTest {
 		assertThat(sr, is(notNullValue()));
 		assertThat(sr.getAmount(), is(amount));
 	}
-	
+
 	@Test
 	public void addServiceCharge() throws Exception {
 		final int empId = 2;
@@ -196,13 +198,14 @@ public class PayrollTest {
 		UnionAffiliation af = new UnionAffiliation(memberId, BigDecimal.valueOf(12.5));
 		e.setAffiliation(af);
 		GpayrollDatabase.addUnionMember(memberId, e);
-		ServiceChargeTransaction sct = new ServiceChargeTransaction(memberId, date(11, 01, 2001), BigDecimal.valueOf(12.95));
+		ServiceChargeTransaction sct = new ServiceChargeTransaction(memberId, date(11, 01, 2001),
+				BigDecimal.valueOf(12.95));
 		sct.execute();
 		ServiceCharge sc = af.getServiceCharge(date(11, 01, 2001));
 		assertThat(sc, is(notNullValue()));
 		assertThat(sc.getAmount(), is(BigDecimal.valueOf(12.95)));
 	}
-	
+
 	@Test
 	public void changeNameTransaction() throws Exception {
 		final int empId = 2;
@@ -214,11 +217,12 @@ public class PayrollTest {
 		assertThat(e, is(notNullValue()));
 		assertThat(e.getName(), is("Bob"));
 	}
-	
+
 	@Test
 	public void changeHourlyTransaction() throws Exception {
 		final int empId = 3;
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500),
+				BigDecimal.valueOf(3.2));
 		t.execute();
 		ChangeHourlyTransaction cht = new ChangeHourlyTransaction(empId, BigDecimal.valueOf(27.52));
 		cht.execute();
@@ -231,11 +235,12 @@ public class PayrollTest {
 		PaymentSchedule ps = e.getSchedule();
 		assertThat(ps, instanceOf(WeeklySchedule.class));
 	}
-	
+
 	@Test
 	public void changeSalariedTransaction() throws Exception {
 		final int empId = 3;
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500),
+				BigDecimal.valueOf(3.2));
 		t.execute();
 		ChangeSalariedTransaction cst = new ChangeSalariedTransaction(empId, BigDecimal.valueOf(1000.00));
 		cst.execute();
@@ -248,13 +253,14 @@ public class PayrollTest {
 		PaymentSchedule ps = e.getSchedule();
 		assertThat(ps, instanceOf(MonthlySchedule.class));
 	}
-	
+
 	@Test
 	public void changeCommissionedTransaction() throws Exception {
 		final int empId = 3;
 		AddSalariedEmployee t = new AddSalariedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(1000.00));
 		t.execute();
-		ChangeCommissionedTransaction cct = new ChangeCommissionedTransaction(empId, BigDecimal.valueOf(2500), BigDecimal.valueOf(3.2));
+		ChangeCommissionedTransaction cct = new ChangeCommissionedTransaction(empId, BigDecimal.valueOf(2500),
+				BigDecimal.valueOf(3.2));
 		cct.execute();
 		Employee e = GpayrollDatabase.getEmployee(empId);
 		assertThat(e, is(notNullValue()));
@@ -266,7 +272,7 @@ public class PayrollTest {
 		PaymentSchedule ps = e.getSchedule();
 		assertThat(ps, instanceOf(BiweeklySchedule.class));
 	}
-	
+
 	@Test
 	public void changeMemberTransaction() throws Exception {
 		final int empId = 2;
@@ -286,7 +292,7 @@ public class PayrollTest {
 		assertThat(member, is(notNullValue()));
 		assertThat(e.equals(member), is(true));
 	}
-	
+
 	@Test
 	public void changeUnaffiliatedTransaction() throws Exception {
 		final int empId = 2;
@@ -305,7 +311,7 @@ public class PayrollTest {
 		Employee member = GpayrollDatabase.getUnionMember(memberId);
 		assertThat(member, is(nullValue()));
 	}
-	
+
 	@Test
 	public void changeUnaffiliatedTransaction_alreadyNoAffiliation() throws Exception {
 		final int empId = 2;
@@ -318,7 +324,7 @@ public class PayrollTest {
 		Affiliation af = e.getAffiliation();
 		assertThat(af, instanceOf(NoAffiliation.class));
 	}
-	
+
 	@Test
 	public void paySingleSalariedEmployee() throws Exception {
 		final int empId = 1;
@@ -335,7 +341,7 @@ public class PayrollTest {
 		assertThat(pc.getDeductions(), is(BigDecimal.valueOf(0.0)));
 		assertThat(pc.getNetPay(), is(BigDecimal.valueOf(1000.00)));
 	}
-	
+
 	@Test
 	public void paySingleSalariedEmployeeOnWrongDate() throws Exception {
 		final int empId = 1;
@@ -347,25 +353,25 @@ public class PayrollTest {
 		Paycheck pc = pt.getPaycheck(empId);
 		assertThat(pc, is(nullValue()));
 	}
-	
+
 	@Test
 	public void paySingleHourlyEmployeeNoTimeCards() throws Exception {
 		final int empId = 2;
 		AddHourlyEmployee t = new AddHourlyEmployee(empId, "Bill", "Home", BigDecimal.valueOf(15.25));
 		t.execute();
-		Date payDate = date(11, 9, 2001);	// Friday
+		Date payDate = date(11, 9, 2001); // Friday
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
 		validatePaycheck(pt, empId, payDate, new BigDecimal("0.00"));
 	}
-	
+
 	@Test
 	public void paySingleHourlyEmployeeOneTimeCard() throws Exception {
 		final int empId = 2;
 		AddHourlyEmployee t = new AddHourlyEmployee(empId, "Bill", "Home", BigDecimal.valueOf(15.25));
 		t.execute();
-		Date payDate = date(11, 9, 2001);	// Friday
-		
+		Date payDate = date(11, 9, 2001); // Friday
+
 		TimeCardTransaction tc = new TimeCardTransaction(payDate, BigDecimal.valueOf(2.0), empId);
 		tc.execute();
 		PaydayTransaction pt = new PaydayTransaction(payDate);
@@ -378,14 +384,14 @@ public class PayrollTest {
 		final int empId = 2;
 		AddHourlyEmployee t = new AddHourlyEmployee(empId, "Bill", "Home", BigDecimal.valueOf(15.25));
 		t.execute();
-		Date payDate = date(11, 9, 2001);	// Friday
-		
+		Date payDate = date(11, 9, 2001); // Friday
+
 		TimeCardTransaction tc = new TimeCardTransaction(payDate, BigDecimal.valueOf(9.0), empId);
 		tc.execute();
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
-		final BigDecimal expectedPay = new BigDecimal("144.88");	// (8 + 1.5) * 15.25
+
+		final BigDecimal expectedPay = new BigDecimal("144.88"); // (8 + 1.5) * 15.25
 		validatePaycheck(pt, empId, payDate, expectedPay);
 	}
 
@@ -394,13 +400,13 @@ public class PayrollTest {
 		final int empId = 2;
 		AddHourlyEmployee t = new AddHourlyEmployee(empId, "Bill", "Home", BigDecimal.valueOf(15.25));
 		t.execute();
-		Date payDate = date(11, 8, 2001);	// Thursday
-		
+		Date payDate = date(11, 8, 2001); // Thursday
+
 		TimeCardTransaction tc = new TimeCardTransaction(payDate, BigDecimal.valueOf(9.0), empId);
 		tc.execute();
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
+
 		Paycheck pc = pt.getPaycheck(empId);
 		assertThat(pc, is(nullValue()));
 	}
@@ -410,57 +416,59 @@ public class PayrollTest {
 		final int empId = 2;
 		AddHourlyEmployee t = new AddHourlyEmployee(empId, "Bill", "Home", BigDecimal.valueOf(15.25));
 		t.execute();
-		Date payDate = date(11, 9, 2001);	// Friday
-		
+		Date payDate = date(11, 9, 2001); // Friday
+
 		TimeCardTransaction tc = new TimeCardTransaction(payDate, BigDecimal.valueOf(2.0), empId);
 		tc.execute();
 		TimeCardTransaction tc2 = new TimeCardTransaction(date(11, 3, 2001), BigDecimal.valueOf(5.0), empId);
 		tc2.execute();
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
-		final BigDecimal expectedPay = new BigDecimal("106.75");	// (2 + 5) * 15.25
+
+		final BigDecimal expectedPay = new BigDecimal("106.75"); // (2 + 5) * 15.25
 		validatePaycheck(pt, empId, payDate, expectedPay);
 	}
-	
+
 	@Test
 	public void paySingleHourlyEmployeeWithTimeCardsSpanningTwoPayPeriods() throws Exception {
 		final int empId = 2;
 		AddHourlyEmployee t = new AddHourlyEmployee(empId, "Bill", "Home", BigDecimal.valueOf(15.25));
 		t.execute();
-		Date payDate = date(11, 9, 2001);	// Friday
+		Date payDate = date(11, 9, 2001); // Friday
 		Date dateInPreviousPayPeriod = date(11, 2, 2001);
-		
+
 		TimeCardTransaction tc = new TimeCardTransaction(payDate, BigDecimal.valueOf(2.0), empId);
 		tc.execute();
 		TimeCardTransaction tc2 = new TimeCardTransaction(dateInPreviousPayPeriod, BigDecimal.valueOf(5.0), empId);
 		tc2.execute();
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
-		final BigDecimal expectedPay = new BigDecimal("30.50");	// 2 * 15.25
+
+		final BigDecimal expectedPay = new BigDecimal("30.50"); // 2 * 15.25
 		validatePaycheck(pt, empId, payDate, expectedPay);
 	}
-	
+
 	@Test
 	public void paySingleCommissionedEmployeeNoSales() throws Exception {
 		final int empId = 2;
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00),
+				BigDecimal.valueOf(3.2));
 		t.execute();
-		Date payDate = date(11, 16, 2012);	// Bi-weekly Friday
+		Date payDate = date(11, 16, 2012); // Bi-weekly Friday
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
-		BigDecimal expectedPay = new BigDecimal("1153.85");	// 2500/mo * (12mo / 26checks)
+
+		BigDecimal expectedPay = new BigDecimal("1153.85"); // 2500/mo * (12mo / 26checks)
 		validatePaycheck(pt, empId, payDate, expectedPay);
 	}
-	
+
 	@Test
 	public void paySingleCommissionedEmployeeNoSalesEvery14DaysFor10Years() throws Exception {
 		final int empId = 2;
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00),
+				BigDecimal.valueOf(3.2));
 		t.execute();
-		
+
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date(11, 16, 2012));
 
@@ -479,69 +487,71 @@ public class PayrollTest {
 	@Test
 	public void paySingleCommissionedEmployeeOnWrongDate() throws Exception {
 		final int empId = 2;
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00),
+				BigDecimal.valueOf(3.2));
 		t.execute();
-		Date payDate = date(11, 23, 2012);	// Non-biweekly Friday
+		Date payDate = date(11, 23, 2012); // Non-biweekly Friday
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
+
 		Paycheck pc = pt.getPaycheck(empId);
 		assertThat(pc, is(nullValue()));
 	}
-	
-	
+
 	@Test
 	public void paySingleCommissionedEmployeeWithOneSale() throws Exception {
 		final int empId = 2;
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00),
+				BigDecimal.valueOf(3.2));
 		t.execute();
 		SalesReceiptTransaction srt = new SalesReceiptTransaction(date(11, 16, 2012), new BigDecimal("500.00"), empId);
 		srt.execute();
-		
-		Date payDate = date(11, 16, 2012);	// Bi-weekly Friday
+
+		Date payDate = date(11, 16, 2012); // Bi-weekly Friday
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
-		BigDecimal expectedPay = new BigDecimal("1169.85");	// 2500/mo * (12mo / 26checks) + 500.00 * 3.2%
+
+		BigDecimal expectedPay = new BigDecimal("1169.85"); // 2500/mo * (12mo / 26checks) + 500.00 * 3.2%
 		validatePaycheck(pt, empId, payDate, expectedPay);
 	}
-	
+
 	@Test
 	public void paySingleCommissionedEmployeeWithTwoSales() throws Exception {
 		final int empId = 2;
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00),
+				BigDecimal.valueOf(3.2));
 		t.execute();
 		SalesReceiptTransaction srt = new SalesReceiptTransaction(date(11, 16, 2012), new BigDecimal("500.00"), empId);
 		srt.execute();
 		SalesReceiptTransaction srt2 = new SalesReceiptTransaction(date(11, 3, 2012), new BigDecimal("250.50"), empId);
 		srt2.execute();
-		
-		Date payDate = date(11, 16, 2012);	// Bi-weekly Friday
+
+		Date payDate = date(11, 16, 2012); // Bi-weekly Friday
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
-		BigDecimal expectedPay = new BigDecimal("1177.87");	// 2500/mo * (12mo / 26checks) + 750.50 * 3.2%
+
+		BigDecimal expectedPay = new BigDecimal("1177.87"); // 2500/mo * (12mo / 26checks) + 750.50 * 3.2%
 		validatePaycheck(pt, empId, payDate, expectedPay);
 	}
-	
+
 	@Test
 	public void paySingleCommissionedEmployeeWithSaleInPreviousPayPeriod() throws Exception {
 		final int empId = 2;
-		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00), BigDecimal.valueOf(3.2));
+		AddCommissionedEmployee t = new AddCommissionedEmployee(empId, "Lance", "Home", BigDecimal.valueOf(2500.00),
+				BigDecimal.valueOf(3.2));
 		t.execute();
 		SalesReceiptTransaction srt = new SalesReceiptTransaction(date(11, 16, 2012), new BigDecimal("500.00"), empId);
 		srt.execute();
 		SalesReceiptTransaction srt2 = new SalesReceiptTransaction(date(11, 2, 2012), new BigDecimal("250.50"), empId);
 		srt2.execute();
-		
-		Date payDate = date(11, 16, 2012);	// Bi-weekly Friday
+
+		Date payDate = date(11, 16, 2012); // Bi-weekly Friday
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
-		BigDecimal expectedPay = new BigDecimal("1169.85");	// 2500/mo * (12mo / 26checks) + 500.00 * 3.2%
+
+		BigDecimal expectedPay = new BigDecimal("1169.85"); // 2500/mo * (12mo / 26checks) + 500.00 * 3.2%
 		validatePaycheck(pt, empId, payDate, expectedPay);
 	}
-	
 
 	@Test
 	public void salariedUnionMemberDues() throws Exception {
@@ -554,9 +564,10 @@ public class PayrollTest {
 		Date payDate = date(11, 30, 2001);
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		validatePaycheckWithDeductions(pt, empId, payDate, new BigDecimal("1000.00"), new BigDecimal("952.90"), new BigDecimal("47.10"));	// 1000 - (9.42 * 5)
+		validatePaycheckWithDeductions(pt, empId, payDate, new BigDecimal("1000.00"), new BigDecimal("952.90"),
+				new BigDecimal("47.10")); // 1000 - (9.42 * 5)
 	}
-	
+
 	@Test
 	public void hourlyUnionMemberServiceCharge() throws Exception {
 		final int empId = 1;
@@ -572,10 +583,11 @@ public class PayrollTest {
 		tct.execute();
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
-		validatePaycheckWithDeductions(pt, empId, payDate, new BigDecimal("121.92"), new BigDecimal("93.08"), new BigDecimal("28.84"));
+
+		validatePaycheckWithDeductions(pt, empId, payDate, new BigDecimal("121.92"), new BigDecimal("93.08"),
+				new BigDecimal("28.84"));
 	}
-	
+
 	@Test
 	public void serviceChargesSpanningMultiplePayPeriods() throws Exception {
 		final int empId = 1;
@@ -584,9 +596,9 @@ public class PayrollTest {
 		final int memberId = 7734;
 		ChangeMemberTransaction cmt = new ChangeMemberTransaction(empId, memberId, new BigDecimal("9.42"));
 		cmt.execute();
-		Date earlyDate = date(11, 2, 2001);	// previous Friday
+		Date earlyDate = date(11, 2, 2001); // previous Friday
 		Date payDate = date(11, 9, 2001);
-		Date lateDate = date(11, 16, 2001);	// next Friday
+		Date lateDate = date(11, 16, 2001); // next Friday
 		ServiceChargeTransaction sct = new ServiceChargeTransaction(memberId, payDate, new BigDecimal("19.42"));
 		sct.execute();
 		ServiceChargeTransaction sctEarly = new ServiceChargeTransaction(memberId, earlyDate, new BigDecimal("100.00"));
@@ -597,10 +609,11 @@ public class PayrollTest {
 		tct.execute();
 		PaydayTransaction pt = new PaydayTransaction(payDate);
 		pt.execute();
-		
-		validatePaycheckWithDeductions(pt, empId, payDate, new BigDecimal("121.92"), new BigDecimal("93.08"), new BigDecimal("28.84"));
+
+		validatePaycheckWithDeductions(pt, empId, payDate, new BigDecimal("121.92"), new BigDecimal("93.08"),
+				new BigDecimal("28.84"));
 	}
-	
+
 	private void validatePaycheck(PaydayTransaction pt, int empId, Date payDate, BigDecimal pay) {
 		Paycheck pc = pt.getPaycheck(empId);
 		assertThat(pc, is(notNullValue()));
@@ -611,7 +624,8 @@ public class PayrollTest {
 		assertThat(pc.getNetPay(), is(pay));
 	}
 
-	private void validatePaycheckWithDeductions(PaydayTransaction pt, int empId, Date payDate, BigDecimal grossPay, BigDecimal netPay, BigDecimal deductions) {
+	private void validatePaycheckWithDeductions(PaydayTransaction pt, int empId, Date payDate, BigDecimal grossPay,
+			BigDecimal netPay, BigDecimal deductions) {
 		Paycheck pc = pt.getPaycheck(empId);
 		assertThat(pc, is(notNullValue()));
 		assertThat(pc.getPayPeriodEndDate(), is(payDate));
@@ -620,12 +634,12 @@ public class PayrollTest {
 		assertThat(pc.getDeductions(), is(deductions));
 		assertThat(pc.getNetPay(), is(netPay));
 	}
-	
+
 	private Date date(int month, int day, int year) {
 		Calendar c = Calendar.getInstance();
 		c.clear();
 		c.set(year, month - 1, day);
 		return c.getTime();
 	}
-	
+
 }

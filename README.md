@@ -4,7 +4,7 @@
 
 ## Screenshot
 
-[](https://github.com/JirayuL/Payroll/blob/master/Screenshot/Screen%20Shot.png)
+![screenshot](https://github.com/JirayuL/Payroll/blob/master/Screenshot/Screen%20Shot.png)
 
 ### Members:
 - Jirayu Laungwilawan 5910546635
